@@ -17,12 +17,12 @@ const Config = {
     /**
      * If you can't figure this one out, I don't have high hopes
      */
-    coinName: 'TurtleCoin',
+    coinName: 'NashCash',
 
     /**
      * Prefix for URI encoded addresses
      */
-    uriPrefix: 'turtlecoin://',
+    uriPrefix: 'nashcash://',
 
     /**
      * How often to save the wallet, in milliseconds
@@ -33,13 +33,13 @@ const Config = {
      * The amount of decimal places your coin has, e.g. TurtleCoin has two
      * decimals
      */
-    decimalPlaces: 2,
+    decimalPlaces: 8,
 
     /**
      * The address prefix your coin uses - you can find this in CryptoNoteConfig.h.
      * In TurtleCoin, this converts to TRTL
      */
-    addressPrefix: 3914525,
+    addressPrefix: 0x5bc80,
 
     /**
      * Request timeout for daemon operations in milliseconds
@@ -49,7 +49,7 @@ const Config = {
     /**
      * The block time of your coin, in seconds
      */
-    blockTargetTime: 30,
+    blockTargetTime: 60,
 
     /**
      * How often to process blocks, in millseconds
@@ -76,7 +76,7 @@ const Config = {
     /**
      * Your coins 'ticker', generally used to refer to the coin, i.e. 123 TRTL
      */
-    ticker: 'TRTL',
+    ticker: 'NaCa',
 
     /**
      * Most people haven't mined any blocks, so lets not waste time scanning
@@ -106,7 +106,7 @@ const Config = {
     /**
      * The length of a standard address for your coin
      */
-    standardAddressLength: 99,
+    standardAddressLength: 98,
 
     /**
      * The length of an integrated address for your coin - It's the same as
@@ -115,7 +115,7 @@ const Config = {
      * chunks of 8 chars at once into blocks of 11 chars, we can calculate
      * this automatically
      */
-    integratedAddressLength: 99 + ((64 * 11) / 8),
+    integratedAddressLength: 98 + ((64 * 11) / 8),
 
     /**
      * Use our native func instead of JS slowness
@@ -194,7 +194,7 @@ const Config = {
      * Default daemon to use. Can either be a BlockchainCacheApi(baseURL, SSL),
      * or a ConventionalDaemon(url, port).
      */
-    defaultDaemon: new BlockchainCacheApi('blockapi.turtlepay.io', true),
+    defaultDaemon: new BlockchainCacheApi('142.93.160.126', false),
 
     /**
      * A link to where a bug can be reported for your wallet. Please update

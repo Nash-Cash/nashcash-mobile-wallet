@@ -12,12 +12,12 @@ export const Themes = {
         /**
          * The primary colour used by the wallet, for TurtleCoin this is green
          */
-        primaryColour: '#40C18E',
+        primaryColour: '#696969',
 
         /**
          * Colour for the background circles on the pin page
          */
-        pinCodeBackgroundColour: '#D8F3E8',
+        pinCodeBackgroundColour: '#696969',
 
         /**
          * Colour for the pin code numbers
@@ -80,7 +80,7 @@ export const Themes = {
         /**
          * The primary colour used by the wallet, for TurtleCoin this is green
          */
-        primaryColour: '#40C18E',
+        primaryColour: '#cc6600',
 
         /**
          * Colour for the background circles on the pin page
@@ -91,12 +91,12 @@ export const Themes = {
          * Colour for the pin code numbers
          * Note that when you click them, a different theme is applied.
          */
-        pinCodeForegroundColour: 'white',
+        pinCodeForegroundColour: 'black',
 
         /**
          * We chose to use a darker green here. It is very rarely used.
          */
-        secondaryColour: '#00853D',
+        secondaryColour: '#454545',
 
         /**
          * Terrible name, lol. This is used things which shouldn't pop out
