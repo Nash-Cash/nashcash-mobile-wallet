@@ -7,17 +7,17 @@ export const Themes = {
         /**
          * Background colour for every component
          */
-        backgroundColour: 'white',
+        backgroundColour: '#C1BCB7',
 
         /**
-         * The primary colour used by the wallet, for TurtleCoin this is green
+         * The primary colour used by the wallet, for NashCash is Blue
          */
-        primaryColour: '#696969',
+        primaryColour: '#454CBE',
 
         /**
          * Colour for the background circles on the pin page
          */
-        pinCodeBackgroundColour: '#696969',
+        pinCodeBackgroundColour: '#D8F3E8',
 
         /**
          * Colour for the pin code numbers
@@ -28,7 +28,7 @@ export const Themes = {
         /**
          * We chose to use a darker green here. It is very rarely used.
          */
-        secondaryColour: '#00853D',
+        secondaryColour: '#454CBE',
 
         /**
          * Terrible name, lol. This is used things which shouldn't pop out
@@ -50,7 +50,7 @@ export const Themes = {
         /**
          * Colour for the address book icon background
          */
-        iconColour: 'ghostwhite',
+        iconColour: 'lightgray',
 
         /**
          * Filepath of the logo to use.
@@ -62,7 +62,7 @@ export const Themes = {
              * Your foreground colour needs to be a darkish colour, or the
              * code will not scan.
              */
-            foregroundColour: 'gray',
+            foregroundColour: '#101112',
 
             /**
              * Your background colour needs to be a lightish colour, or the
@@ -75,12 +75,12 @@ export const Themes = {
         /**
          * Background colour for every component
          */
-        backgroundColour: '#2C2F33',
+        backgroundColour: '#101112',
 
         /**
-         * The primary colour used by the wallet, for TurtleCoin this is green
+         * The primary colour used by the wallet, for NashCash is it blue
          */
-        primaryColour: '#cc6600',
+        primaryColour: '#317E31',
 
         /**
          * Colour for the background circles on the pin page
@@ -91,12 +91,12 @@ export const Themes = {
          * Colour for the pin code numbers
          * Note that when you click them, a different theme is applied.
          */
-        pinCodeForegroundColour: 'black',
+        pinCodeForegroundColour: 'white',
 
         /**
          * We chose to use a darker green here. It is very rarely used.
          */
-        secondaryColour: '#454545',
+        secondaryColour: '#454CBE',
 
         /**
          * Terrible name, lol. This is used things which shouldn't pop out

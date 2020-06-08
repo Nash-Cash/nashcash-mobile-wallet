@@ -128,6 +128,27 @@ Java_com_tonchan_TurtleCoinModule_generateRingSignaturesJNI(
     return makeJNISignatures(env, signatures);
 }
 
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_tonchan_TurtleCoinModule_checkRingSignatureJNI(
+    JNIEnv *env,
+    jobject instance,
+    jstring jPrefixHash,
+    jstring jKeyImage,
+    jobjectArray jPublicKeys,
+    jobjectArray jSignatures)
+{
+    const Crypto::Hash prefixHash = makeNative32ByteKey<Crypto::Hash>(env, jPrefixHash);
+    const Crypto::KeyImage keyImage = makeNative32ByteKey<Crypto::KeyImage>(env, jKeyImage);
+    const std::vector<Crypto::PublicKey> publicKeys = makeNativePublicKeys(env, jPublicKeys);
+    const std::vector<Crypto::Signature> signatures = makeNativeSignatures(env, jSignatures);
+
+    const auto success = Crypto::checkRingSignature(
+        prefixHash, keyImage, publicKeys, signatures
+    );
+
+    return static_cast<jboolean>(success);
+}
+
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_tonchan_TurtleCoinModule_generateKeyDerivationJNI(
     JNIEnv *env,
@@ -214,13 +235,33 @@ std::vector<Crypto::PublicKey> makeNativePublicKeys(JNIEnv *env, jobjectArray jP
     return publicKeys;
 }
 
+std::vector<Crypto::Signature> makeNativeSignatures(JNIEnv *env, jobjectArray jSignatures)
+{
+    std::vector<Crypto::Signature> signatures;
+
+    int len = env->GetArrayLength(jSignatures);
+
+    for (int i = 0; i < len; i++)
+    {
+        jstring jSignature = (jstring)env->GetObjectArrayElement(jSignatures, i);
+        signatures.push_back(makeNative64ByteKey<Crypto::Signature>(env, jSignature));
+        env->DeleteLocalRef(jSignature);
+    }
+
+    return signatures;
+}
+
 WalletBlockInfo makeNativeWalletBlockInfo(JNIEnv *env, jobject jWalletBlockInfo)
 {
     WalletBlockInfo result;
 
     jobject tx = env->GetObjectField(jWalletBlockInfo, WALLET_BLOCK_INFO_COINBASE_TRANSACTION);
-    result.coinbaseTransaction = makeNativeRawTransaction(env, tx);
-    env->DeleteLocalRef(tx);
+
+    if (tx != nullptr)
+    {
+        result.coinbaseTransaction = makeNativeRawTransaction(env, tx);
+        env->DeleteLocalRef(tx);
+    }
 
     jobjectArray transactions = (jobjectArray)env->GetObjectField(jWalletBlockInfo, WALLET_BLOCK_INFO_TRANSACTIONS);
     result.transactions = makeNativeTransactionVector(env, transactions);
@@ -435,10 +476,10 @@ std::vector<std::tuple<Crypto::PublicKey, TransactionInput>> processBlockOutputs
     std::vector<std::tuple<Crypto::PublicKey, TransactionInput>> inputs;
 
     /* Process the coinbase tx if we're not skipping them for speed */
-    if (processCoinbaseTransactions)
+    if (processCoinbaseTransactions && block.coinbaseTransaction)
     {
         processTransactionOutputs(
-            block.coinbaseTransaction, privateViewKey, spendKeys, isViewWallet, inputs
+            *block.coinbaseTransaction, privateViewKey, spendKeys, isViewWallet, inputs
         );
     }
 

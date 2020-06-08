@@ -2,16 +2,24 @@
 //
 // Please see the included LICENSE file for more information.
 
+const request = require('request-promise-native');
+
 import * as _ from 'lodash';
 
-import { NetInfo, Alert } from 'react-native';
+import { Daemon } from 'turtlecoin-wallet-backend';
+
+import { Alert } from 'react-native';
+
+import NetInfo from "@react-native-community/netinfo";
+
+import Config from './Config';
 
 import { Logger } from './Logger';
 import { getCoinPriceFromAPI } from './Currency';
+import { makePostRequest } from './NativeCode';
 
 import {
-    saveToDatabase, loadPreferencesFromDatabase, loadPayeeDataFromDatabase,
-    savePayeeToDatabase, removePayeeFromDatabase,
+    loadPayeeDataFromDatabase, savePayeeToDatabase, removePayeeFromDatabase,
     loadTransactionDetailsFromDatabase, saveTransactionDetailsToDatabase,
 } from './Database';
 
@@ -19,9 +27,6 @@ class globals {
     constructor() {
         /* Can't really pass wallet between tab screens, and need it everywhere */
         this.wallet = undefined;
-
-        /* Need pincode so we can save wallet */
-        this.pinCode = undefined;
 
         /* Need to be able to cancel the background saving if we make a new wallet */
         this.backgroundSaveTimer = undefined;
@@ -36,7 +41,10 @@ class globals {
             scanCoinbaseTransactions: false,
             limitData: false,
             theme: 'darkMode',
-            pinConfirmation: false,
+            authConfirmation: false,
+            autoOptimize: true,
+            authenticationMethod: 'hardware-auth',
+            node: Config.defaultDaemon.getConnectionString(),
         };
 
         /* People in our address book */
@@ -48,6 +56,8 @@ class globals {
 
         /* Mapping of tx hash to address sent, payee name, memo */
         this.transactionDetails = [];
+
+        this.daemons = [];
     }
 
     reset() {
@@ -55,8 +65,6 @@ class globals {
         this.pinCode = undefined;
         this.backgroundSaveTimer = undefined;
         this.logger = new Logger();
-
-        NetInfo.removeEventListener('connectionChange', updateConnection);
     }
 
     addTransactionDetails(txDetails) {
@@ -80,6 +88,37 @@ class globals {
         Globals.updatePayeeFunctions.forEach((f) => {
             f();
         });
+    }
+
+    getDaemon() {
+        const [ host, port ] = this.preferences.node.split(':');
+
+        const daemon = new Daemon(host, Number(port));
+
+        if (Platform.OS === 'android') {
+            /* Override with our native makePostRequest implementation which can
+               actually cancel requests part way through */
+            daemon.makePostRequest = makePostRequest;
+        }
+
+        return daemon;
+    }
+
+    async updateNodeList() {
+        try {
+            const data = await request({
+                json: true,
+                method: 'GET',
+                timeout: Config.requestTimeout,
+                url: Config.nodeListURL,
+            });
+
+            if (data.nodes) {
+                this.daemons = data.nodes;
+            }
+        } catch (error) {
+            this.logger.addLogMessage('Failed to get node list from API: ' + error.toString());
+        }
     }
 }
 
@@ -108,7 +147,7 @@ export async function initGlobals() {
         Globals.transactionDetails = transactionDetails;
     }
     
-    const netInfo = NetInfo.getConnectionInfo();
+    const netInfo = await NetInfo.fetch();
 
     /* Start syncing */
     if ((Globals.preferences.limitData && netInfo.type === 'cellular')) {
@@ -123,5 +162,5 @@ export async function initGlobals() {
         Globals.wallet.start();
     }
 
-    NetInfo.addEventListener('connectionChange', updateConnection);
+    await Globals.updateNodeList();
 }

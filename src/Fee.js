@@ -14,7 +14,7 @@ export function removeFee(amount) {
     let tmp = amountAtomic - Config.minimumFee - nodeFeeAtomic;
 
     /* Ensure it's an integer amount */
-    const devFeeAtomic = Math.floor(tmp - tmp / (1 + (Config.devFeePercentage / 100)));
+    const devFeeAtomic = Math.round(tmp - tmp / (1 + (Config.devFeePercentage / 100)));
 
     const totalFeeAtomic = Config.minimumFee + devFeeAtomic + nodeFeeAtomic;
 
@@ -52,11 +52,15 @@ export function removeFee(amount) {
 export function addFee(amount) {
     const amountAtomic = toAtomic(amount);
 
+    const [feeAddress, nodeFeeAtomic] = Globals.wallet.getNodeFee();
+
     /* Add the min fee */
     let tmp = amountAtomic + Config.minimumFee;
 
     /* Get the amount with the dev fee added */
-    const devFeeAdded = Math.floor(tmp + ((tmp * Config.devFeePercentage) / 100));
+    let devFeeAdded = Math.floor(tmp + ((tmp * Config.devFeePercentage) / 100));
+
+    devFeeAdded += nodeFeeAtomic;
 
     const nonAtomic = devFeeAdded / (10 ** Config.decimalPlaces);
 
@@ -68,7 +72,7 @@ export function addFee(amount) {
  * Converts a human amount to an atomic amount, for use internally
  */
 export function toAtomic(amount) {
-    return Math.round(amount * (10 ** Config.decimalPlaces));
+    return Math.round(Number(amount) * (10 ** Config.decimalPlaces));
 }
 
 /** 

@@ -26,14 +26,14 @@ export function delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function toastPopUp(message) {
+export function toastPopUp(message, short = true) {
     /* IOS doesn't have toast support */
     /* TODO */
     if (Platform.OS === 'ios') {
         return;
     }
 
-    ToastAndroid.show(message, ToastAndroid.SHORT);
+    ToastAndroid.show(message, short ? ToastAndroid.SHORT : ToastAndroid.LONG);
 }
 
 /* Navigate to a route, resetting the stack, so the user cannot go back.
@@ -119,7 +119,7 @@ export function handleURI(data, navigation) {
         );
     } else {
         /* Hop into the transfer stack */
-        navigation.navigate('Transfer');
+        navigation.navigate('ChoosePayee');
         /* Then navigate to the nested route, if needed */
         navigation.navigate(result.suggestedAction, {...result});
     }
@@ -130,10 +130,9 @@ export function parseURI(qrData) {
     if (qrData.startsWith(Config.uriPrefix)) {
         /* Remove the turtlecoin:// prefix */
         let data = qrData.replace(Config.uriPrefix, '');
+        let index = data.indexOf('?');
 
-        const index = data.indexOf('?');
-
-        /* Not valid URI */
+        /* Doesn't have any params */
         if (index === -1) {
             index = data.length;
         }
@@ -165,7 +164,7 @@ export function parseURI(qrData) {
             }
         }
 
-        const addressError = validateAddresses([address], true);
+        const addressError = validateAddresses([address], true, Config);
 
         /* Address isn't valid */
         if (addressError.errorCode !== WalletErrorCode.SUCCESS) {
@@ -176,39 +175,13 @@ export function parseURI(qrData) {
         }
 
         const amountAtomic = Number(amount);
-        let feeInfo = undefined;
-        let amountNonAtomic = undefined;
 
-        if (!isNaN(amountAtomic)) {
-            amountNonAtomic = amountAtomic / (10 ** Config.decimalPlaces);
-
-            /* Got an amount, can go straight to confirmation, if we have enough balance */
-            const [unlockedBalance, lockedBalance] = Globals.wallet.getBalance();
-
-            feeInfo = addFee(amountNonAtomic);
-
-            let [valid, error] = validAmount(feeInfo.original, unlockedBalance);
-
-            if (feeInfo.originalAtomic > unlockedBalance) {
-                error = 'Not enough funds available! Needed (including fees): ' +
-                        `${prettyPrintAmount(feeInfo.originalAtomic)}, Available: ` +
-                        prettyPrintAmount(unlockedBalance);
-            }
-
-            if (!valid) {
-                return {
-                    valid: false,
-                    error,
-                };
-            }
-        }
-        
         /* No name, need to pick one.. */
         if (!name) {
             return {
                 paymentID: paymentID || '',
                 address,
-                amount: amountNonAtomic ? amountNonAtomic.toString() : undefined,
+                amount: !isNaN(amountAtomic) ? amountAtomic : undefined,
                 suggestedAction: 'NewPayee',
                 valid: true,
             }
@@ -230,7 +203,7 @@ export function parseURI(qrData) {
                 return {
                     paymentID: paymentID || '',
                     address,
-                    amount: amountNonAtomic.toString(),
+                    amount: amountAtomic,
                     suggestedAction: 'NewPayee',
                     valid: true,
                 };
@@ -249,14 +222,14 @@ export function parseURI(qrData) {
         } else {
             return {
                 payee: newPayee,
-                amount: feeInfo,
+                amount: amountAtomic,
                 suggestedAction: 'Confirm',
                 valid: true,
             };
         }
     /* It's a standard address, try and parse it (or something else) */
     } else {
-        const addressError = validateAddresses([qrData], true);
+        const addressError = validateAddresses([qrData], true, Config);
 
         if (addressError.errorCode !== WalletErrorCode.SUCCESS) {
             return {
