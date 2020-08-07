@@ -6,8 +6,6 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
 
-import com.tonchan.BuildConfig;
-
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;

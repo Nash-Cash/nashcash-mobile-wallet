@@ -1,4 +1,4 @@
-# NashCash-Mobile - A mobile, native TurtleCoin wallet
+# TonChan - A mobile, native TurtleCoin wallet
 
 ![Screenshot](https://i.imgur.com/F5LMYKl.png)
 
