@@ -1,7 +1,3 @@
-# TonChan - A mobile, native TurtleCoin wallet
-
-![Screenshot](https://i.imgur.com/F5LMYKl.png)
-
 ### Initial Setup
 
 * `cd TonChan`
